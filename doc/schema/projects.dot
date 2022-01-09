@@ -1,0 +1,46 @@
+/*
+ * Graphviz of '<_io.TextIOWrapper name='<stdin>' mode='r' encoding='UTF-8'>', created 2022-01-09 12:01:52.220363
+ * Generated from https://github.com/rm-hull/sql_graphviz
+ */
+digraph g { graph [ rankdir = "LR" ];
+
+    "rodzaj" [
+    shape=none
+    label=<
+      <table border="0" cellspacing="0" cellborder="1">
+        <tr><td bgcolor="lightblue2" colspan="2"><font face="Times-bold" point-size="20"> rodzaj </font></td></tr>
+        <tr><td bgcolor="grey96" align="left" port="id_rodzaj"><font face="Times-bold"> id_rodzaj </font></td><td align="left" port="id_rodzaj_right"><font color="#535353"> INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT </font></td></tr>
+        <tr><td bgcolor="grey96" align="left" port="nazwa_rodzaj"><font face="Times-bold"> nazwa_rodzaj </font></td><td align="left" port="nazwa_rodzaj_right"><font color="#535353"> VARCHAR (50) NOT NULL </font></td></tr>
+      </table>
+    >];
+
+    "status" [
+    shape=none
+    label=<
+      <table border="0" cellspacing="0" cellborder="1">
+        <tr><td bgcolor="lightblue2" colspan="2"><font face="Times-bold" point-size="20"> status </font></td></tr>
+        <tr><td bgcolor="grey96" align="left" port="id_status"><font face="Times-bold"> id_status </font></td><td align="left" port="id_status_right"><font color="#535353"> INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT </font></td></tr>
+        <tr><td bgcolor="grey96" align="left" port="nazwa_status"><font face="Times-bold"> nazwa_status </font></td><td align="left" port="nazwa_status_right"><font color="#535353"> VARCHAR (50) NOT NULL </font></td></tr>
+      </table>
+    >];
+
+    "projekt" [
+    shape=none
+    label=<
+      <table border="0" cellspacing="0" cellborder="1">
+        <tr><td bgcolor="lightblue2" colspan="2"><font face="Times-bold" point-size="20"> projekt </font></td></tr>
+        <tr><td bgcolor="grey96" align="left" port="id_projekt"><font face="Times-bold"> id_projekt </font></td><td align="left" port="id_projekt_right"><font color="#535353"> INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT </font></td></tr>
+        <tr><td bgcolor="grey96" align="left" port="id_rodzaj"><font face="Times-bold"> id_rodzaj </font></td><td align="left" port="id_rodzaj_right"><font color="#535353"> INTEGER NOT NULL </font></td></tr>
+        <tr><td bgcolor="grey96" align="left" port="id_status"><font face="Times-bold"> id_status </font></td><td align="left" port="id_status_right"><font color="#535353"> INTEGER NOT NULL </font></td></tr>
+        <tr><td bgcolor="grey96" align="left" port="nr_projekt"><font face="Times-bold"> nr_projekt </font></td><td align="left" port="nr_projekt_right"><font color="#535353"> VARCHAR (15) NOT NULL </font></td></tr>
+        <tr><td bgcolor="grey96" align="left" port="temat_projekt"><font face="Times-bold"> temat_projekt </font></td><td align="left" port="temat_projekt_right"><font color="#535353"> VARCHAR (150) NOT NULL </font></td></tr>
+        <tr><td bgcolor="grey96" align="left" port="data_rozpoczecia"><font face="Times-bold"> data_rozpoczecia </font></td><td align="left" port="data_rozpoczecia_right"><font color="#535353"> DATE NOT NULL </font></td></tr>
+        <tr><td bgcolor="grey96" align="left" port="data_zakonczenia"><font face="Times-bold"> data_zakonczenia </font></td><td align="left" port="data_zakonczenia_right"><font color="#535353"> DATE </font></td></tr>
+        <tr><td bgcolor="grey96" align="left" port="kwota"><font face="Times-bold"> kwota </font></td><td align="left" port="kwota_right"><font color="#535353"> DECIMAL (10,2) NOT NULL </font></td></tr>
+        <tr><td bgcolor="grey96" align="left" port="uwagi"><font face="Times-bold"> uwagi </font></td><td align="left" port="uwagi_right"><font color="#535353"> VARCHAR (500) </font></td></tr>
+      </table>
+    >];
+
+    "projekt" -> "status"       [ dir=both, taillabel="\n 1 \n", headlabel="\n 0..* \n", arrowtail="tee", arrowhead="invodot", arrowsize="1.5" ]
+    "projekt" -> "rodzaj"       [ dir=both, taillabel="\n 1 \n", headlabel="\n 0..* \n", arrowtail="tee", arrowhead="invodot", arrowsize="1.5" ]
+}

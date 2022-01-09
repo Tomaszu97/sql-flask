@@ -1,0 +1,21 @@
+{% extends "bazowa_templatka.html" %}
+
+{% block title %}
+Dodawanie rodzaju projektu
+{% endblock %}
+
+{% block content %}
+<h1>Dodawanie rodzaju projektu</h1>
+
+<form action="/dodaj_rodzaj" method="POST">
+  <div class="form-group">
+      <div class="col-3 col-sm-12">
+        <div class="input-group">
+          <span class="input-group-addon text-dark">Rodzaj</span>
+          <input type="text" class="form-input" name="rodzaj" placeholder="rodzaj projektu">
+          <button type="submit" class="btn btn-primary input-group-btn">Zapisz</button>
+        </div>
+      </div>
+  </div>
+</form>
+{% endblock %}

@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{url_for('static', filename='css/spectre-0.5.9/dist/spectre.min.css')}}">
+    <link rel="stylesheet" href="{{url_for('static', filename='css/spectre-0.5.9/dist/spectre-icons.min.css')}}">
+
+    {% block favicon %}
+    <link rel="shortcut icon" href="{{ url_for('static', filename='img/favicon.png') }}">
+    {% endblock %}
+
+    <title>
+        {% block title %}
+        Serwis ewidencji projektów
+        {% endblock %}
+    </title>
+</head>
+
+<body class="bg-dark">
+    {% block navbar %}
+    <header class="navbar bg-primary">
+      <section class="navbar-section">
+
+                <div class="dropdown">
+                  <div class="btn-group"><a class="btn btn-primary" href="/strona_glowna">Strona główna</a>
+                  </div>
+                </div>
+                <div class="dropdown">
+                  <div class="btn-group"><a class="btn btn-primary" href="/wykaz_projektow">Wykaz projektów</a><a class="btn btn-primary dropdown-toggle" tabindex="0"><i class="icon icon-caret"></i></a>
+                    <ul class="menu">
+                       <li class="menu-item text-dark"><a href="/dodaj_rodzaj">Dodaj rodzaj projektu</a></li><br>
+                       <li class="menu-item text-dark"><a href="/dodaj_status">Dodaj status projektu</a></li><br>
+                       <li class="menu-item text-dark"><a href="/edytuj_rodzaj">Edytuj rodzaj projektu</a></li><br>
+                       <li class="menu-item text-dark"><a href="/edytuj_status">Edytuj status projektu</a></li><br>
+                       <li class="menu-item text-dark"><a href="/dodaj_projekt">Dodaj projekt</a></li><br>
+                       <li class="menu-item text-dark"><a href="/projekty_wg_rodzaj">Projekty według rodzaju</a></li><br>
+                       <li class="menu-item text-dark"><a href="/projekty_wg_status">Projekty według statusu</a></li><br>
+                       <li class="menu-item text-dark"><a href="/edytuj_projekt">Edycja projektu</a></li><br>
+                    </ul>
+                  </div>
+                </div>
+                <!--
+                <div class="dropdown">
+                  <div class="btn-group"><a class="btn btn-primary" href="/">Szukaj projektu według numeru</a><a class="btn btn-primary dropdown-toggle" tabindex="0"><i class="icon icon-caret"></i></a>
+                    <ul class="menu">
+                      <li class="menu-item text-dark"><a href="#dropdowns">Szukaj projektu według tematu</a></li><br>
+                      <li class="menu-item text-dark"><a href="#dropdowns">Szukaj projektu według daty</a></li><br>
+                      <li class="menu-item text-dark"><a href="#dropdowns">Szukaj projektu według kwoty</a></li><br>
+                      <li class="menu-item text-dark"><a href="#dropdowns">Statystyki projektów</a></li><br>
+                      <li class="menu-item text-dark"><a href="#dropdowns">Statystyki graficznie według rodzaju</a></li><br>
+                      <li class="menu-item text-dark"><a href="#dropdowns">Szukaj graficznie według statusu</a></li><br>
+                    </ul>
+                  </div>
+                </div>
+                -->
+      </section>
+      <section class="navbar-center">
+        <img  src="{{url_for( 'static', filename='img/krzak.png' )}}" alt="" height="30px" alt="image missing">
+      </section>
+      <section class="navbar-section">
+      </section>
+    </header>
+    {% endblock %}
+
+    <div class="hero bg-dark">
+        <div class="hero-body">
+        {% block content %}
+            Welcome to my webpage!
+        {% endblock %}
+        </div>
+    </div>
+
+
+    <div class="px-2 bg-gray"
+         style="
+           display: flex;
+           flex-direction: row;
+           width: 100%;
+           justify-content: space-evenly;
+           align-items: center;">
+    <div class="">
+      <small>
+        <ul class="nav">
+          <li class="nav-item">
+            <strong>
+              <a href="">WSZELKIE PRAWA ZASTRZEŻONE</a>
+            </strong>
+        </ul>
+      </small>
+    </div>
+    <div class="">
+      <div class="clearfix"></div>
+
+      <small>
+        <ul class="nav">
+          <li class="nav-item">
+            <strong>
+            `<a href="">INFORMACJE</a>
+            </strong>
+          </li>
+          <li class="nav-item">
+            <a href="" title="Self Service">Polityka prywatności</a>
+          </li>
+          <li class="nav-item">
+            <a href="" title="Assisted Service">RODO</a>
+          </li>
+          <li class="nav-item">
+            <a href="" title="Managed Service">Cennik usług</a>
+          </li>
+          <li class="nav-item">
+            <a href="" title="Voting Center Service">Informacje prawne</a>
+          </li>
+        </ul>
+      </small>
+    </div>
+    <div class="">
+      <div class="show-xs">
+        <div class="clearfix"></div>
+        <br />
+      </div>
+      <small>
+        <div class="mb-2 px-2">
+          <dl>
+            <dt>Kontakt</dt>
+            <dd>
+              <a href="#contact-form">Formularz</a>
+            </dd>
+          </dl>
+          <dl>
+            <dt>Telefon</dt>
+            <dd><a href="">+48 123 456 789</a></dd>
+          </dl>
+          <dl>
+            <dt>Adres email</dt>
+            <dd>
+              <a href="">wsparcie@krzak.com.pl</a>
+            </dd>
+          </dl>
+        </div>
+      </small>
+    </div>
+</div>
+
+</body>
