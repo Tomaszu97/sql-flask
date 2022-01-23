@@ -1,5 +1,5 @@
 import os
-from flask import Flask, app, render_template, request, jsonify, abort, make_response
+from flask import Flask, app, render_template, request, jsonify, abort, make_response, flash
 from flask.helpers import url_for
 from flask_sqlalchemy import SQLAlchemy
 
@@ -10,6 +10,7 @@ app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URI
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['DEBUG'] = False
+app.secret_key = b'_5#nkj24390uy2L"F4ss123123Q8z\n\xec]/'
 db = SQLAlchemy(app)
 
 ################## DATABASE #####################
@@ -54,23 +55,90 @@ def wykaz_projektow():
 @app.route('/dodaj_rodzaj', methods=['GET', 'POST'])
 def dodaj_rodzaj():
     if request.method == 'POST':
-        form_data = request.form
-        nowy_rodzaj = Rodzaj(nazwa_rodzaj=form_data['rodzaj'])
-        db.session.add(nowy_rodzaj)
-        db.session.commit()
+        nowy_rodzaj = request.form['rodzaj']
+
+        if nowy_rodzaj == '':
+            flash('Pole nie może być puste!')
+        elif db.session.query(Rodzaj.nazwa_rodzaj).\
+             filter(Rodzaj.nazwa_rodzaj == nowy_rodzaj).\
+             first() is not None:
+            flash('Podany rodzaj już istnieje!')
+        else:
+            nowy_rekord = Rodzaj(nazwa_rodzaj=nowy_rodzaj)
+            db.session.add(nowy_rekord)
+            db.session.commit()
+
     return render_template('dodaj_rodzaj.html')
 
-@app.route('/dodaj_status')
+@app.route('/dodaj_status', methods=['GET', 'POST'])
 def dodaj_status():
+    if request.method == 'POST':
+        nowy_status = request.form['status']
+
+        if nowy_status == '':
+            flash('Pole nie może być puste!')
+        elif db.session.query(Status.nazwa_status).\
+             filter(Status.nazwa_status == nowy_status).\
+             first() is not None:
+            flash('Podany status już istnieje!')
+        else:
+            nowy_rekord = Status(nazwa_status=nowy_status)
+            db.session.add(nowy_rekord)
+            db.session.commit()
+
     return render_template('dodaj_status.html')
 
-@app.route('/edytuj_rodzaj')
+@app.route('/edytuj_rodzaj', methods=['GET','POST'])
 def edytuj_rodzaj():
-    return render_template('edytuj_rodzaj.html')
+    db_class  = Rodzaj
+    db_pk     = Rodzaj.id_rodzaj
+    db_pk_str = 'id_rodzaj'
+    editable_columns = ['nazwa_rodzaj']
 
-@app.route('/edytuj_status')
+    if request.method == 'POST':
+        if request.form['action'] == 'send':
+            query = db.session.query(db_class).filter(db_pk == request.form[db_pk_str])
+            if query is not None:
+                mydict = { column.name : request.form[column.name] for column in db_class.__table__.columns if column.name in editable_columns }
+                query.update(mydict)
+                db.session.commit()
+
+        elif request.form['action'] == 'delete':
+            query = db.session.query(db_class).filter(db_pk == request.form[db_pk_str])
+            if query is not None:
+                query.delete()
+                db.session.commit()
+
+    return render_template('edytuj_rodzaj.html',
+           db_class=db_class,
+           db_query=db.session.query(db_class),
+           editable_columns=editable_columns)
+
+@app.route('/edytuj_status', methods=['GET','POST'])
 def edytuj_status():
-    return render_template('edytuj_status.html')
+    db_class  = Status
+    db_pk     = Status.id_status
+    db_pk_str = 'id_status'
+    editable_columns = ['nazwa_status']
+
+    if request.method == 'POST':
+        if request.form['action'] == 'send':
+            query = db.session.query(db_class).filter(db_pk == request.form[db_pk_str])
+            if query is not None:
+                mydict = { column.name : request.form[column.name] for column in db_class.__table__.columns if column.name in editable_columns }
+                query.update(mydict)
+                db.session.commit()
+
+        elif request.form['action'] == 'delete':
+            query = db.session.query(db_class).filter(db_pk == request.form[db_pk_str])
+            if query is not None:
+                query.delete()
+                db.session.commit()
+
+    return render_template('edytuj_status.html',
+           db_class=db_class,
+           db_query=db.session.query(db_class),
+           editable_columns=editable_columns)
 
 @app.route('/dodaj_projekt')
 def dodaj_projekt():

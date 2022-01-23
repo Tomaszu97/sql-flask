@@ -1,9 +1,79 @@
 {% extends "bazowa_templatka.html" %}
 
+{% block javascript %}
+<script>
+function start_edit(row_number)
+{
+    row_number = String(row_number);
+    document.getElementById("edit-btn-"   + row_number).classList.add("d-hide");
+    document.getElementById("filler-1-"   + row_number).classList.add("d-hide");
+    document.getElementById("filler-2-"   + row_number).classList.add("d-hide");
+    document.getElementById("cancel-btn-" + row_number).classList.remove("d-hide");
+    document.getElementById("send-btn-"   + row_number).classList.remove("d-hide");
+    document.getElementById("delete-btn-" + row_number).classList.remove("d-hide");
+    document.getElementById( "record-" + row_number ).getElementsByClassName("editable-input")[0].classList.remove("d-hide");
+    document.getElementById( "record-" + row_number ).getElementsByClassName("editable-label")[0].classList.add("d-hide");
+}
+
+function stop_edit(row_number)
+{
+    row_number = String(row_number);
+    document.getElementById("edit-btn-"   + row_number).classList.remove("d-hide");
+    document.getElementById("filler-1-"   + row_number).classList.remove("d-hide");
+    document.getElementById("filler-2-"   + row_number).classList.remove("d-hide");
+    document.getElementById("cancel-btn-" + row_number).classList.add("d-hide");
+    document.getElementById("send-btn-"   + row_number).classList.add("d-hide");
+    document.getElementById("delete-btn-" + row_number).classList.add("d-hide");
+    document.getElementById( "record-" + row_number ).getElementsByClassName("editable-input")[0].classList.add("d-hide");
+    document.getElementById( "record-" + row_number ).getElementsByClassName("editable-label")[0].classList.remove("d-hide");
+}
+</script>
+{% endblock %}
+
 {% block title %}
-Edytowanie statusu projektu
+Edytowanie Statusu projektu
 {% endblock %}
 
 {% block content %}
-#TODO
+<h1>Edytowanie statusu projektu</h1>
+
+<table class="table table-scroll bg-dark">
+  <thead>
+    <tr>
+      <th></th>
+      <th></th>
+      <th></th>
+      {% for column in db_class.__table__.columns %}
+        <th>{{ column.name }}</th>
+      {% endfor %}
+    </tr>
+  </thead>
+  <tbody>
+  {% for row in db_query.all() %}
+    {% set idx = loop.index %}
+    <tr id="record-{{idx}}">
+        <td id="edit-btn-{{idx}}"><button class="btn btn-primary" onclick="start_edit({{idx}})">Edytuj</button></td>
+        <td id="filler-1-{{idx}}"></td>
+        <td id="filler-2-{{idx}}"></td>
+        <td id="cancel-btn-{{idx}}" class="d-hide"><button class="btn btn-primary" onclick="stop_edit({{idx}})">Anuluj</button></td>
+
+        <form action="/edytuj_status" method="POST">
+          <td id="send-btn-{{idx}}" class="d-hide"><button type="submit" name="action" value="send" class="btn btn-success"/>Wyślij</td>
+          <td id="delete-btn-{{idx}}" class="d-hide"><button type="submit" name="action" value="delete" class="btn btn-error"/>Usuń</td>
+          {% for column in db_class.__table__.columns %}
+            <td>
+              {% if column.name in editable_columns %}
+                <div class="editable-label">{{ row.__dict__[column.name] }}</div>
+                <input class="form-input editable-input d-hide" name="{{ column.name }}" type="text"  value="{{ row.__dict__[column.name] }}"/>
+              {% else %}
+                <div>{{ row.__dict__[column.name] }}</div>
+                <input class="form-input d-hide" name="{{ column.name }}" type="text"  value="{{ row.__dict__[column.name] }}"/>
+              {% endif %}
+            </td>
+          {% endfor %}
+        </form>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
 {% endblock %}

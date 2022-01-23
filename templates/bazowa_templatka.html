@@ -16,6 +16,9 @@
         Serwis ewidencji projektów
         {% endblock %}
     </title>
+
+    {% block javascript %}
+    {% endblock %}
 </head>
 
 <body class="bg-dark">
@@ -63,6 +66,16 @@
       </section>
     </header>
     {% endblock %}
+
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+        <ul class="text-error">
+            {% for message in messages %}
+            <li>{{ message }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+    {% endwith %}
 
     <div class="hero bg-dark">
         <div class="hero-body">
@@ -121,7 +134,7 @@
         <br />
       </div>
       <small>
-        <div class="mb-2 px-2">
+        <div class="mb-2 px-2 text-dark">
           <dl>
             <dt>Kontakt</dt>
             <dd>

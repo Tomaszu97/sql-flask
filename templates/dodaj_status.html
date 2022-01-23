@@ -5,5 +5,17 @@ Dodawanie statusu
 {% endblock %}
 
 {% block content %}
-#TODO
+<h1>Dodawanie statusu projektu</h1>
+
+<form action="/dodaj_status" method="POST">
+  <div class="form-group">
+      <div class="col-3 col-sm-12">
+        <div class="input-group">
+          <span class="input-group-addon text-dark">Rodzaj</span>
+          <input type="text" class="form-input" name="status" placeholder="status projektu">
+          <button type="submit" class="btn btn-primary input-group-btn">Zapisz</button>
+        </div>
+      </div>
+  </div>
+</form>
 {% endblock %}
