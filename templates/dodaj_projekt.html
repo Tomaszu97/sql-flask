@@ -5,5 +5,53 @@ Dodawanie projektu
 {% endblock %}
 
 {% block content %}
-#TODO
+<h1>Dodawanie projektu</h1>
+
+<form action="/dodaj_projekt" method="POST">
+  <div class="form-group">
+    <div class="col-3 col-sm-12">
+      <label class="form-label" for="rodzaj-input">Rodzaj projektu</label>
+      <select id="rodzaj-input" type="text" class="form-select text-dark" name="rodzaj">
+        {% for row in db.session.query(Rodzaj).all() %}
+          <option>{{ row.__dict__['nazwa_rodzaj'] }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-3 col-sm-12">
+      <label class="form-label" for="status-input">Status projektu</label>
+      <select id="status-input" type="text" class="form-select text-dark" name="status">
+        {% for row in db.session.query(Status).all() %}
+          <option>{{ row.__dict__['nazwa_status'] }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-3 col-sm-12">
+      <label class="form-label" for="nr-input">Numer projektu</label>
+      <input id="numer-input" type="text" class="form-input" name="nr_projekt" placeholder="Wpisz numer"/>
+    </div>
+    <div class="col-3 col-sm-12">
+      <label class="form-label" for="temat-input">Temat projektu</label>
+      <textarea id="temat-input" class="form-input" name="temat_projekt" placeholder="Wpisz temat"></textarea>
+    </div>
+    <div class="col-3 col-sm-12">
+      <label class="form-label" for="data-rozp-input">Data rozpoczęcia</label>
+      <input id="data-rozp-input" type="date" class="form-input" name="data_rozpoczecia"/>
+    </div>
+    <div class="col-3 col-sm-12">
+      <label class="form-label" for="data-zak-input">Data zakończenia</label>
+      <input id="data-zak-input" type="date" class="form-input" name="data_zakonczenia"/>
+    </div>
+    <div class="col-3 col-sm-12">
+      <label class="form-label" for="kwota-input">Kwota projektu</label>
+      <input id="kwota-input" type="text" class="form-input" name="kwota" placeholder="Wpisz kwotę"/>
+    </div>
+    <div class="col-3 col-sm-12">
+      <label class="form-label" for="uwagi-input">Uwagi</label>
+      <textarea id="uwagi-input" class="form-input" name="uwagi" placeholder="Opcjonalne uwagi"></textarea>
+
+    </div>
+    <br/>
+    <button type="submit" class="btn btn-primary">Wyślij</button>
+    </div>
+</form>
 {% endblock %}

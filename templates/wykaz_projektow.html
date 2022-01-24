@@ -5,5 +5,28 @@ Wykaz projektów
 {% endblock %}
 
 {% block content %}
-Wykaz projektów.
+<h1>Wykaz projektów</h1>
+
+<table class="table table-scroll bg-dark">
+  <thead>
+    <tr>
+      {% for column in columns %}
+        <th>{{ column }}</th>
+      {% endfor %}
+    </tr>
+  </thead>
+  <tbody>
+  {% for row in rows %}
+    <tr>
+      {% for column in columns %}
+        <td>
+            <div>{{ row.__dict__[column] }}</div>
+            <div>{{ row.__dict__[column] }}</div>
+            <div>{{ row.__dict__[column] }}</div>
+        </td>
+      {% endfor %}
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
 {% endblock %}

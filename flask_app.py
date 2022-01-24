@@ -2,6 +2,7 @@ import os
 from flask import Flask, app, render_template, request, jsonify, abort, make_response, flash
 from flask.helpers import url_for
 from flask_sqlalchemy import SQLAlchemy
+from datetime import datetime as dt
 
 BASEDIR = os.path.abspath(os.path.dirname(__file__))
 DATABASE_URI = 'sqlite:///' + os.path.join(BASEDIR, 'projects.sqlite')
@@ -17,6 +18,8 @@ db = SQLAlchemy(app)
 
 class Projekt(db.Model):
     id_projekt = db.Column(db.Integer, primary_key=True, unique=True)
+    id_rodzaj = db.Column(db.Integer)
+    id_status = db.Column(db.Integer)
     nr_projekt = db.Column(db.Text)
     temat_projekt = db.Column(db.Text)
     data_rozpoczecia = db.Column(db.Date)
@@ -32,10 +35,6 @@ class Rodzaj(db.Model):
     id_rodzaj = db.Column(db.Integer, primary_key=True, unique=True)
     nazwa_rodzaj = db.Column(db.Text)
 
-#    def __repr__(self) -> str:
-#        return f'<ClassName {self.index}, {self.email}, {self.message}>'
-
-
 db.create_all()
 
 ################## /DATABASE ####################
@@ -48,9 +47,21 @@ db.create_all()
 def strona_glowna():
     return render_template('strona_glowna.html')
 
+
 @app.route('/wykaz_projektow')
 def wykaz_projektow():
-    return render_template('wykaz_projektow.html')
+    columns = [ x.name for x in Projekt.__table__.columns ]
+    columns.remove('id_rodzaj')
+    columns.remove('id_status')
+    columns.append('nazwa_status')
+    columns.append('nazwa_rodzaj')
+    rows = db.session.query(Projekt,Rodzaj,Status).all()[0]
+                            #join(Rodzaj, Rodzaj.id_rodzaj == Projekt.id_rodzaj).\
+                            #join(Status, Status.id_status == Projekt.id_status)[0]
+
+    #rows={**projekt._asdict(), **rodzaj._asdict(), **status._asdict()}
+
+    return render_template('wykaz_projektow.html', columns=columns, rows=rows)
 
 @app.route('/dodaj_rodzaj', methods=['GET', 'POST'])
 def dodaj_rodzaj():
@@ -140,9 +151,30 @@ def edytuj_status():
            db_query=db.session.query(db_class),
            editable_columns=editable_columns)
 
-@app.route('/dodaj_projekt')
+@app.route('/dodaj_projekt', methods=['GET','POST'])
 def dodaj_projekt():
-    return render_template('dodaj_projekt.html')
+    if request.method == 'POST':
+        try:
+            new_project = {}
+            new_project['nr_projekt'] = request.form['nr_projekt']
+            new_project['temat_projekt'] = request.form['temat_projekt']
+            new_project['data_rozpoczecia'] = dt.strptime(request.form['data_rozpoczecia'], '%Y-%m-%d')
+            new_project['data_zakonczenia'] = dt.strptime(request.form['data_zakonczenia'], '%Y-%m-%d')
+            val = int(request.form['kwota'])
+            assert(val > 0)
+            new_project['kwota'] = val
+            new_project['uwagi'] = request.form['uwagi']
+            assert(all(new_project.values()))
+            new_project['id_rodzaj'] = db.session.query(Rodzaj).filter(Rodzaj.nazwa_rodzaj == request.form['rodzaj']).first().id_rodzaj
+            new_project['id_status'] = db.session.query(Status).filter(Status.nazwa_status == request.form['status']).first().id_status
+            new_project = Projekt(**new_project)
+            db.session.add(new_project)
+            db.session.commit()
+        except Exception as e:
+            flash(f'Wypełnij poprawnie wszystkie pola!')
+            db.session.rollback()
+
+    return render_template('dodaj_projekt.html', db=db, Rodzaj=Rodzaj, Status=Status)
 
 @app.route('/projekty_wg_rodzaj')
 def projekty_wg_rodzaj():
