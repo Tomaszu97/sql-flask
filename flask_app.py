@@ -3,6 +3,7 @@ from flask import Flask, app, render_template, request, jsonify, abort, make_res
 from flask.helpers import url_for
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime as dt
+import time
 
 BASEDIR = os.path.abspath(os.path.dirname(__file__))
 DATABASE_URI = 'sqlite:///' + os.path.join(BASEDIR, 'projects.sqlite')
@@ -18,8 +19,8 @@ db = SQLAlchemy(app)
 
 class Projekt(db.Model):
     id_projekt = db.Column(db.Integer, primary_key=True, unique=True)
-    id_rodzaj = db.Column(db.Integer)
-    id_status = db.Column(db.Integer)
+    id_rodzaj = db.Column(db.Integer, db.ForeignKey("rodzaj.id_rodzaj"))
+    id_status = db.Column(db.Integer, db.ForeignKey("status.id_status"))
     nr_projekt = db.Column(db.Text)
     temat_projekt = db.Column(db.Text)
     data_rozpoczecia = db.Column(db.Date)
@@ -50,16 +51,22 @@ def strona_glowna():
 
 @app.route('/wykaz_projektow')
 def wykaz_projektow():
-    columns = [ x.name for x in Projekt.__table__.columns ]
-    columns.remove('id_rodzaj')
-    columns.remove('id_status')
-    columns.append('nazwa_status')
-    columns.append('nazwa_rodzaj')
-    rows = db.session.query(Projekt,Rodzaj,Status).all()[0]
-                            #join(Rodzaj, Rodzaj.id_rodzaj == Projekt.id_rodzaj).\
-                            #join(Status, Status.id_status == Projekt.id_status)[0]
+    columns = [
+        (Projekt, 'id_projekt'),
+        (Projekt, 'nr_projekt'),
+        (Projekt, 'temat_projekt'),
+        (Projekt, 'data_rozpoczecia'),
+        (Projekt, 'data_zakonczenia'),
+        (Projekt, 'kwota'),
+        (Projekt, 'uwagi'),
+        (Rodzaj, 'nazwa_rodzaj'),
+        (Status, 'nazwa_status'),
+    ]
 
-    #rows={**projekt._asdict(), **rodzaj._asdict(), **status._asdict()}
+    rows = db.session.query(Projekt,Rodzaj,Status)\
+        .join(Rodzaj)\
+        .join(Status)\
+        .all()
 
     return render_template('wykaz_projektow.html', columns=columns, rows=rows)
 
@@ -176,17 +183,114 @@ def dodaj_projekt():
 
     return render_template('dodaj_projekt.html', db=db, Rodzaj=Rodzaj, Status=Status)
 
-@app.route('/projekty_wg_rodzaj')
+@app.route('/projekty_wg_rodzaj', methods=['GET','POST'])
 def projekty_wg_rodzaj():
-    return render_template('projekty_wg_rodzaj.html')
+    columns = [
+        (Projekt, 'id_projekt'),
+        (Projekt, 'nr_projekt'),
+        (Projekt, 'temat_projekt'),
+        (Projekt, 'data_rozpoczecia'),
+        (Projekt, 'data_zakonczenia'),
+        (Projekt, 'kwota'),
+        (Projekt, 'uwagi'),
+        (Rodzaj, 'nazwa_rodzaj'),
+        (Status, 'nazwa_status'),
+    ]
 
-@app.route('/projekty_wg_status')
+    if request.method == 'POST':
+        rows = db.session.query(Projekt,Rodzaj,Status)\
+            .join(Rodzaj)\
+            .join(Status)\
+            .filter(Rodzaj.nazwa_rodzaj == request.form['rodzaj'])\
+            .all()
+    else:
+        rows = []
+
+    return render_template('projekty_wg_rodzaj.html', db=db, Rodzaj=Rodzaj, columns=columns, rows=rows)
+
+@app.route('/projekty_wg_status', methods=['GET','POST'])
 def projekty_wg_status():
-    return render_template('projekty_wg_status.html')
+    columns = [
+        (Projekt, 'id_projekt'),
+        (Projekt, 'nr_projekt'),
+        (Projekt, 'temat_projekt'),
+        (Projekt, 'data_rozpoczecia'),
+        (Projekt, 'data_zakonczenia'),
+        (Projekt, 'kwota'),
+        (Projekt, 'uwagi'),
+        (Rodzaj, 'nazwa_rodzaj'),
+        (Status, 'nazwa_status'),
+    ]
 
-@app.route('/edytuj_projekt')
+    if request.method == 'POST':
+        rows = db.session.query(Projekt,Rodzaj,Status)\
+            .join(Rodzaj)\
+            .join(Status)\
+            .filter(Status.nazwa_status == request.form['status'])\
+            .all()
+    else:
+        rows = []
+
+    return render_template('projekty_wg_status.html', db=db, Status=Status, columns=columns, rows=rows)
+
+# most ellastic implementation
+# supports foreign key connected tables, implements pulldown menu for these options
+# note - foreign_key_colname must be the same for both main and helper tables
+# note2 - input type select == pull select values by foreign key from another table
+@app.route('/edytuj_projekt', methods=['GET','POST'])
 def edytuj_projekt():
-    return render_template('edytuj_projekt.html')
+    main_table=Projekt
+    #table class, column name string, is_editable, input_type, foreign_key_colname
+    columns = [
+        (Projekt, 'id_projekt',       False, 'number', None),
+        (Projekt, 'nr_projekt',       True,  'text',   None),
+        (Projekt, 'temat_projekt',    True,  'text',   None),
+        (Projekt, 'data_rozpoczecia', True,  'date',   None),
+        (Projekt, 'data_zakonczenia', True,  'date',   None),
+        (Projekt, 'kwota',            True,  'number', None),
+        (Projekt, 'uwagi',            True,  'text',   None),
+        (Rodzaj,  'nazwa_rodzaj',     True,  'select', 'id_rodzaj'),
+        (Status,  'nazwa_status',     True,  'select', 'id_status'),
+    ]
+
+    if request.method == 'POST':
+        if request.form['action'] == 'send':
+            query = db.session.query(main_table).filter(
+                main_table.__mapper__.primary_key[0] == \
+                request.form[main_table.__mapper__.primary_key[0].name])
+            if query is not None:
+                mydict = {}
+                for column in columns:
+                    idx=4
+                    if column[4] is None:
+                        idx=1
+                    if column[3] == 'date':
+                        mydict[column[idx]] = dt.strptime(request.form[column[idx]], '%Y-%m-%d')
+                    else: #text, number
+                        mydict[column[idx]] = request.form[column[idx]]
+                print(80*'#')
+                print(mydict)
+                query.update(mydict)
+                db.session.commit()
+
+        elif request.form['action'] == 'delete':
+            db.session.delete(main_table.query.get(
+                request.form[main_table.__mapper__.primary_key[0].name]))
+            db.session.commit()
+
+    rows = db.session.query(Projekt,Rodzaj,Status)\
+        .join(Rodzaj)\
+        .join(Status)\
+        .all()
+
+    return render_template('edytuj_projekt.html',
+                           db=db,
+                           main_table=main_table,
+                           Projekt=Projekt,
+                           Rodzaj=Rodzaj,
+                           Status=Status,
+                           columns=columns,
+                           rows=rows)
 
 '''
 @app.route('/search')
@@ -195,7 +299,6 @@ def search_page():
 '''
 
 ################## /ROUTES ######################
-
 
 if __name__ == "__main__":
     app.run('0.0.0.0', port=5000, debug=True)

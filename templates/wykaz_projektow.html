@@ -10,19 +10,17 @@ Wykaz projektów
 <table class="table table-scroll bg-dark">
   <thead>
     <tr>
-      {% for column in columns %}
-        <th>{{ column }}</th>
+      {% for table_colname in columns %}
+        <th>{{ table_colname[1] }}</th>
       {% endfor %}
     </tr>
   </thead>
   <tbody>
   {% for row in rows %}
     <tr>
-      {% for column in columns %}
+      {% for table_colname in columns %}
         <td>
-            <div>{{ row.__dict__[column] }}</div>
-            <div>{{ row.__dict__[column] }}</div>
-            <div>{{ row.__dict__[column] }}</div>
+            <div>{{ row[table_colname[0]].__dict__[table_colname[1]] }}</div>
         </td>
       {% endfor %}
     </tr>

@@ -5,5 +5,45 @@ Projekty według rodzaju
 {% endblock %}
 
 {% block content %}
-#TODO
+<h1>Projekty wedgług rodzaju</h1>
+<form action="/projekty_wg_rodzaj" method="POST">
+  <div class="form-group">
+    <div class="col-3 col-sm-12">
+      <label class="form-label" for="rodzaj-input">Rodzaj projektu</label>
+      <select id="rodzaj-input" type="text" class="form-select text-dark" name="rodzaj">
+        {% for row in db.session.query(Rodzaj).all() %}
+          <option>{{ row.__dict__['nazwa_rodzaj'] }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <br/>
+    <button type="submit" class="btn btn-primary">Filtruj</button>
+    </div>
+</form>
+
+{% if not rows %}
+<h2>Brak projektów do wyświetlenia</h2>
+{% else %}
+<table class="table table-scroll bg-dark">
+  <thead>
+    <tr>
+      {% for table_colname in columns %}
+        <th>{{ table_colname[1] }}</th>
+      {% endfor %}
+    </tr>
+  </thead>
+  <tbody>
+  {% for row in rows %}
+    <tr>
+      {% for table_colname in columns %}
+        <td>
+            <div>{{ row[table_colname[0]].__dict__[table_colname[1]] }}</div>
+        </td>
+      {% endfor %}
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endif %}
+
 {% endblock %}

@@ -1,9 +1,90 @@
 {% extends "bazowa_templatka.html" %}
 
+{% block javascript %}
+<script>
+function toggle_edit(row_number)
+{
+    row_number = String(row_number);
+    document.getElementById("edit-btn-"   + row_number).classList.toggle("d-hide");
+    document.getElementById("filler-1-"   + row_number).classList.toggle("d-hide");
+    document.getElementById("filler-2-"   + row_number).classList.toggle("d-hide");
+    document.getElementById("cancel-btn-" + row_number).classList.toggle("d-hide");
+    document.getElementById("send-btn-"   + row_number).classList.toggle("d-hide");
+    document.getElementById("delete-btn-" + row_number).classList.toggle("d-hide");
+
+    elems = document.getElementById( "record-" + row_number ).getElementsByClassName("editable-input")
+    Array.prototype.forEach.call(elems, function (el) { el.classList.toggle("d-hide")});
+    elems = document.getElementById( "record-" + row_number ).getElementsByClassName("editable-label")
+    Array.prototype.forEach.call(elems, function (el) { el.classList.toggle("d-hide")});
+}
+
+</script>
+{% endblock %}
+
 {% block title %}
 Edytowanie projektu
 {% endblock %}
 
 {% block content %}
-#TODO
+<h1>Edytowanie projektu</h1>
+
+<table class="table table-scroll bg-dark">
+  <thead>
+    <tr>
+      <th></th>
+      <th></th>
+      <th></th>
+      {% for table_name, column_name, is_editable, input_type, foreign_key_colname in columns %}
+        <th>{{ column_name }}</th>
+      {% endfor %}
+    </tr>
+  </thead>
+  <tbody>
+
+  {% for row in rows %}
+    {% set idx = loop.index %}
+    <tr id="record-{{idx}}">
+        <td id="edit-btn-{{idx}}"><button class="btn btn-primary" onclick="toggle_edit({{idx}})">Edytuj</button></td>
+        <td id="filler-1-{{idx}}"></td>
+        <td id="filler-2-{{idx}}"></td>
+        <td id="cancel-btn-{{idx}}" class="d-hide"><button class="btn btn-primary" onclick="toggle_edit({{idx}})">Anuluj</button></td>
+
+        <form action="/edytuj_projekt" method="POST">
+          <td id="send-btn-{{idx}}" class="d-hide"><button type="submit" name="action" value="send" class="btn btn-success"/>Wyślij</td>
+          <td id="delete-btn-{{idx}}" class="d-hide"><button type="submit" name="action" value="delete" class="btn btn-error"/>Usuń</td>
+          {% for table_name, column_name, is_editable, input_type, foreign_key_colname in columns %}
+            <td>
+              {% if is_editable %}
+                <div class="editable-label">{{ row[table_name].__dict__[column_name] }}</div>
+                {% if input_type=='select' %}
+                  <select autocomplete="off" class="form-select text-dark editable-input d-hide" name="{{ foreign_key_colname }}" type="text" >
+                    {% for subrow in db.session.query(table_name).all() %}
+                      <option {% if subrow.__dict__[foreign_key_colname] == row[main_table].__dict__[foreign_key_colname] %} selected="selected" {% endif %} value="{{ subrow.__dict__[foreign_key_colname] }}">{{ subrow.__dict__[column_name] }}</option>
+                    {% endfor %}
+                  </select>
+                {% else %}
+                  <input class="form-input editable-input d-hide" name="{{ column_name }}" type="{{ input_type }}"  value="{{ row[table_name].__dict__[column_name] }}"/>
+                {% endif %}
+
+              {% else %}
+                <div>{{ row[table_name].__dict__[column_name] }}</div>
+                {% if input_type=='select' %}
+                  {# #TODO optimize it #}
+                  {% for subrow in db.session.query(table_name).all() %}
+                    {% if subrow.__dict__[foreign_key_colname] == row[main_table].__dict__[foreign_key_colname] %}
+                      <input type="hidden" name="foreign_key_colname" value="{{ row[main_table].__dict__[foreign_key_colname] }}"/>
+                    {% endif %}
+                  {% endfor %}
+                {% else %}
+                  <input type="hidden" name="{{ column_name }}" value="{{ row[table_name].__dict__[column_name] }}"/>
+                {% endif %}
+              {% endif %}
+            </td>
+          {% endfor %}
+        </form>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+
 {% endblock %}
